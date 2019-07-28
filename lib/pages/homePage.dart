@@ -20,9 +20,9 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   // declaring variable to hold platform channel name
   static const platform = const MethodChannel("com.a011.statusforever");
-  bool _permissionStatus = true, _isLoading = false;
+  bool _permissionStatus = true, _isLoading = false,_fabShow = false,_noContent = false;
   var scaffoldKey = new GlobalKey<ScaffoldState>();
-  String appBarMessage = "Permission Request",contact;
+  String appBarMessage = "Permission Request", contact;
   List _fileList = new List();
   List _contacts = new List();
 
@@ -42,7 +42,8 @@ class _HomePageState extends State<HomePage> {
         // if permission is granted
         if (call.arguments == "true") {
           setState(() {
-            appBarMessage = "Now Visible";
+            _fabShow = true;
+            appBarMessage = "Status Forever";
             _isLoading = true;
             _permissionStatus = true;
           });
@@ -69,7 +70,8 @@ class _HomePageState extends State<HomePage> {
       _fetchStatuses();
       // updates app to show content or request button
       setState(() {
-        appBarMessage = "Now Visible";
+        _fabShow = true;
+        appBarMessage = "Status Forever";
       });
     }
     setState(() {
@@ -88,46 +90,68 @@ class _HomePageState extends State<HomePage> {
     List result = await platform.invokeMethod("fetchFileList");
 
     // check if there are statuses to display
-    if (result.length > 0) {
+    if (result != null) {
       _fileList = result;
       setState(() {
         // disable loading
         _isLoading = false;
       });
     }
+    else{
+      setState(() {
+        _isLoading = false;
+        _noContent = true;
+      });
+    }
   }
 
   // sets contact from typeAheadWidget
-  void setContact(String value){
+  void setContact(String value) {
     contact = value;
   }
 
-  void copyFile(contact, fileIndex) async{
-    String result = await platform.invokeMethod("copyFile",{"contact":contact,"fileName":_fileList[fileIndex]});
+  void copyFile(contact, fileIndex) async {
+    String result = await platform.invokeMethod(
+        "copyFile", {"contact": contact, "fileName": _fileList[fileIndex]});
+    if (result == "Copied") {
+      _snakbarShow(1);
+    }
+    else if(result == "AlreadyExists"){
+      _snakbarShow(2);
+    }
+    else{
+      _snakbarShow(3);
+    }
+  }
+
+  void _snakbarShow(int mode){
+    scaffoldKey.currentState.showSnackBar(SnackBar(
+      content: (mode == 1)?Text("Success! Status Saved to device"):(mode == 2)?Text("Status already exists in device\nYou can find it in your gallery"):Text("Error! File could not be saved.\n Please contact developer"),
+      backgroundColor: (mode == 1)?Colors.green:(mode == 2)?Colors.orange:Colors.red,
+      duration: Duration(seconds: 3),
+    ));
   }
 
   Widget buildUI() {
     return Container(
-      padding: EdgeInsets.only(top:50),
-      child: GridView.count(
-        crossAxisCount: 2,
-        children: List<Widget>.generate(_fileList.length, (index) {
-          return new GridTile(
-              child: Card(
-                elevation: 0,
-                color: Color(0xFFEFEFEF),
-                child: new Center(
-                    child: Card(
-                      color: Colors.black,
-                      elevation: 5.0,
-                      child: (_fileList[index].toString().substring(32) == ".mp4")
-                          ? videoView(index, _fileList, showOptions)
-                          : imageView(index, _fileList, showOptions),
-                    )),
-              ));
-        }),
-      ),
-    );
+        padding: EdgeInsets.only(top: 0, left: 0.0, right: 0.0),
+        child: GridView.count(
+            crossAxisCount: 5,
+            scrollDirection: Axis.horizontal,
+            children: List<Widget>.generate(_fileList.length, (index) {
+              return new GridTile(
+                child: Card(
+                  borderOnForeground: true,
+                  elevation: 10.0,
+                  color: Colors.black,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10.0)),
+                  child: (_fileList[index].toString().substring(32) == ".mp4")
+                      ? videoView(index, _fileList, showOptions)
+                      : imageView(index, _fileList, showOptions),
+                ),
+              );
+            })));
   }
 
   // permission ask button
@@ -151,6 +175,12 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  Widget showNoContent(){
+    return Center(
+      child: Text("No Content to show\nWhat happened to people?",style: TextStyle(fontSize: 18.0,),textAlign: TextAlign.center,),
+    );
+  }
+
   // collection of elements present in permission asking view
   Widget _permissionAskingView() {
     return Center(
@@ -167,7 +197,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  void _getContacts() async{
+  void _getContacts() async {
     _contacts = await platform.invokeMethod("getContacts");
   }
 
@@ -176,38 +206,40 @@ class _HomePageState extends State<HomePage> {
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
+            backgroundColor: Color(0xFFEFEFEF),
             shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(5.0)),
             title: Text("Save As"),
             content: Container(
-              child: TypeAheadWidget(_contacts,widget.refreshApp,setContact,_fileList[index]),
+              padding: EdgeInsets.only(bottom: 50.0),
+              child: TypeAheadWidget(
+                  _contacts, widget.refreshApp, setContact, _fileList[index]),
             ),
             actions: <Widget>[
-              RaisedButton(
-                child: Icon(Icons.save),
+              FlatButton(
+                child: Text("Save"),
                 onPressed: () {
                   copyFile(contact, index);
                   Navigator.pop(context);
                 },
-                textColor: Colors.white,
-                color: Colors.teal,
+                textColor: Colors.teal,
+                color: Color(0xFFEFEFEF),
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(5.0)),
               ),
-              RaisedButton(
-                child: Icon(Icons.cancel),
+              FlatButton(
+                child: Text("Cancel"),
                 onPressed: () {
                   Navigator.pop(context);
                 },
-                textColor: Colors.white,
-                color: Colors.red,
+                textColor: Colors.red,
+                color: Color(0xFFEFEFEF),
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(5.0)),
               )
             ],
           );
-        }
-    );
+        });
   }
 
   // shows operations to do on file
@@ -218,42 +250,33 @@ class _HomePageState extends State<HomePage> {
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: Text("Operations"),
-            content: Text("What shall we do with this status?"),
+            backgroundColor: Color(0xFFEFEFEF),
+            title: Text("Actions"),
+            content: Text("Please specify operation to perform"),
             actions: <Widget>[
-              RaisedButton(
-                child: Icon(Icons.remove_red_eye),
+              FlatButton(
+                child: Text("View"),
                 onPressed: () {
                   (fileType == 0)
                       ? viewImageUnSaved(index)
                       : viewVideoUnSaved(index);
                 },
-                textColor: Colors.white,
-                color: Colors.indigo,
+                textColor: Colors.indigo,
+                color: Color(0xFFEFEFEF),
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(5.0)),
               ),
-              RaisedButton(
-                child: Icon(Icons.save),
+              FlatButton(
+                child: Text("Save to device"),
                 onPressed: () {
                   Navigator.pop(context);
                   _getUserName(index);
                 },
-                textColor: Colors.white,
-                color: Colors.teal,
+                textColor: Colors.teal,
+                color: Color(0xFFEFEFEF),
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(5.0)),
               ),
-              RaisedButton(
-                child: Icon(Icons.cancel),
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                textColor: Colors.white,
-                color: Colors.red,
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(5.0)),
-              )
             ],
             shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(5.0)),
@@ -267,41 +290,27 @@ class _HomePageState extends State<HomePage> {
     platform.setMethodCallHandler(_handlerMethod);
     // TODO: implement build
     return SafeArea(
-        child: Scaffold(
-      key: scaffoldKey,
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: (){
-          _fetchStatuses();
-        },
-        icon: Icon(Icons.refresh),
-        label: Text("Refresh"),
-        backgroundColor: Colors.green,
+      child: Scaffold(
+        key: scaffoldKey,
+        floatingActionButton: (_fabShow)?FloatingActionButton.extended(
+          onPressed: () {
+            _fetchStatuses();
+          },
+          icon: Icon(Icons.refresh),
+          label: Text("Refresh"),
+          backgroundColor: Colors.green,
+        ):null,
+        appBar: appBarW(appBarMessage, context),
+        body: Container(
+          padding: EdgeInsets.only(top: 5.0),
+          color: Color(0xFFEFEFEF),
+          child: (_permissionStatus)
+              ? (_isLoading)
+                  ? loadingView("Fetching every status...", context)
+                  : (_noContent)?showNoContent():buildUI()
+              : _permissionAskingView(),
+        ),
       ),
-      body: Stack(
-        children: <Widget>[
-          Container(
-            color: Color(0xFFEFEFEF),
-            child: (_permissionStatus)
-                ? (_isLoading)
-                    ? loadingView("Fetching every status...", context)
-                    : buildUI()
-                : _permissionAskingView(),
-          ),
-          Positioned(
-            top: 0.0,
-            left: 0.0,
-            right: 0.0,
-            child: Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: <Color>[Color(0xffEB3349), Color(0xffF45C43)],
-                ),
-              ),
-              child: appBarW(appBarMessage),
-            ),
-          ),
-        ],
-      ),
-    ));
+    );
   }
 }

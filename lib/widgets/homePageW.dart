@@ -1,12 +1,11 @@
 import 'dart:io';
 import 'dart:ui';
 
-
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter/material.dart';
 
 final Shader linearGradient = LinearGradient(
-  colors: <Color>[Color(0xffEB3349), Color(0xffF45C43)],
+  colors: <Color>[Color(0xff96c93d),Color(0xff00b09b)],
 ).createShader(Rect.fromLTWH(0.0, 0.0, 200.0, 70.0));
 
 var name_textStyle = TextStyle(
@@ -21,20 +20,28 @@ var message_textStyle =
 var permission_textStyle = TextStyle(
     fontSize: 18.0, fontWeight: FontWeight.bold, color: Colors.deepOrange);
 
-Widget appBarW(appBarMessage) {
+Widget appBarW(appBarMessage,context) {
   return AppBar(
+    actions: <Widget>[
+      FlatButton(
+        child: Icon(FontAwesomeIcons.infoCircle),
+        onPressed: (){
+          Navigator.pushNamed(context, '/aboutPage');
+        },
+        color: Colors.transparent,
+      )
+    ],
     title: Text(
       appBarMessage,
       style: TextStyle(
-        letterSpacing: 1.2,
-        color: Colors.white,
+        foreground: Paint()..shader = linearGradient,
         fontWeight: FontWeight.bold,
         fontSize: 25.0,
       ),
     ),
     elevation: 0,
     centerTitle: true,
-    backgroundColor: Colors.transparent,
+    backgroundColor: Color(0xFFEFEFEF),
   );
 }
 
@@ -73,11 +80,13 @@ Widget videoView(index, _fileList, showOptions) {
         Positioned.fill(
             child: Opacity(
               opacity: 0.6,
-              child: Image.file(
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(10.0),
+                child: Image.file(
                 File("/storage/emulated/0/StatusForever/" +
                     _fileList[index].toString().substring(0, 32) +
-                    ".jpg"),
-              ),
+                    ".jpg"),fit: BoxFit.cover
+              )),
             )
         ),
         Positioned.fill(
@@ -101,9 +110,12 @@ Widget imageView(index, _fileList,showOptions){
       // 0 - Image
       showOptions(index,0);
     },
-    child: Image.file(
-      File("/storage/emulated/0/WhatsApp/Media/.Statuses/" +
-          _fileList[index]),
+    child: ClipRRect(
+      borderRadius: BorderRadius.circular(10.0),
+      child: Image.file(
+        File("/storage/emulated/0/WhatsApp/Media/.Statuses/" +
+            _fileList[index]),fit: BoxFit.cover,
+      ),
     ),
   );
 }

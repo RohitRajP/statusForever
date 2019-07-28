@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import './pages/aboutPage.dart';
 import './pages/homePage.dart';
 
 void main() => runApp(MyApp());
@@ -14,9 +15,15 @@ class MyApp extends StatefulWidget{
 
 class _MyAppState extends State<MyApp>{
 
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+
+  }
+
   void refreshApp(){
     setState(() {
-
     });
   }
 
@@ -25,9 +32,14 @@ class _MyAppState extends State<MyApp>{
     // TODO: implement build
     return MaterialApp(
       theme: ThemeData(
-        primarySwatch: Colors.deepOrange,
+        primarySwatch: Colors.teal,
       ),
       title: "Status Forever",
+
+      routes: {
+        '/aboutPage': (BuildContext context) => AboutPage()
+      },
+
       home: HomePage(refreshApp),
     );
   }

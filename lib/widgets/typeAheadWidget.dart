@@ -107,7 +107,7 @@ class _TypeAheadWidgetState extends State<TypeAheadWidget> {
                 }
               });
               _customContacts = _customContacts2;
-              print("Tag:"+_customContacts.toString());
+              //print("Tag:"+_customContacts.toString());
               if(_customContacts.length==0){
                 _customContacts = ["Enter Contact Name"];
               }

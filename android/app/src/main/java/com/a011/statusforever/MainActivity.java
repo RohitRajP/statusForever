@@ -131,7 +131,25 @@ public class MainActivity extends FlutterActivity {
                     String fileName = methodCall.argument("fileName");
                     String contact = methodCall.argument("contact");
 
-                    Log.d("CopyFile: ",copyFile(fileName, contact));
+                    result.success(copyFile(fileName, contact));
+                }
+                else if(methodCall.method.equals("openGitHub")){
+                    String url = "https://github.com/RohitRajP";
+                    Intent i = new Intent(Intent.ACTION_VIEW);
+                    i.setData(Uri.parse(url));
+                    startActivity(i);
+                }
+                else if(methodCall.method.equals("openLinkedIn")){
+                    String url = "https://linkedin.com/in/rohit-raj-p";
+                    Intent i = new Intent(Intent.ACTION_VIEW);
+                    i.setData(Uri.parse(url));
+                    startActivity(i);
+                }
+                else if(methodCall.method.equals("openFacebook")){
+                    String url = "https://www.facebook.com/profile.php?id=100014423143431";
+                    Intent i = new Intent(Intent.ACTION_VIEW);
+                    i.setData(Uri.parse(url));
+                    startActivity(i);
                 }
 
             }
@@ -139,62 +157,89 @@ public class MainActivity extends FlutterActivity {
 
             private String copyFile(String fileName, String contact) {
 
-                // declare directory paths for source and destination
-                String sourcePath = Environment.getExternalStorageDirectory().toString() + "/WhatsApp/Media/.Statuses/"+fileName;
-                String destinationPath = Environment.getExternalStorageDirectory() + "/StatusForever/Users/" + contact + "-Statuses/";
+                if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
 
-                // creating file instances for both source and destination paths
-                File sourceLocationFile = new File(sourcePath);
-                File destinationLocationDir = new File(destinationPath);
-                File destinationLocationFile = new File(destinationPath+fileName);
+                    // declare directory paths for source and destination
+                    String sourcePath = Environment.getExternalStorageDirectory().toString() + "/WhatsApp/Media/.Statuses/" + fileName;
+                    String destinationPath = Environment.getExternalStorageDirectory() + "/StatusForever/Users/" + contact + "-Statuses/";
 
-                // check if the directory path of the contact exists and create if it does not
-                if (!destinationLocationDir.isDirectory()) {
-                    destinationLocationDir.mkdirs();
-                }
+                    // check if file already exsists
+                    String exsistance = checkFileExistance(destinationPath, fileName);
 
-                try {
-                    // declare input and output FileInputStreams with directories
-                    InputStream in = new FileInputStream(sourceLocationFile);
-                    OutputStream out = new FileOutputStream(destinationLocationFile);
+                    if(exsistance.equals("Failed")){
+                        // creating file instances for both source and destination paths
+                        File sourceLocationFile = new File(sourcePath);
+                        File destinationLocationDir = new File(destinationPath);
+                        File destinationLocationFile = new File(destinationPath + fileName);
 
-                    // Copy the bits from instream to outstream
-                    byte[] buf = new byte[1024];
-                    int len;
+                        // check if the directory path of the contact exists and create if it does not
+                        if (!destinationLocationDir.isDirectory()) {
+                            destinationLocationDir.mkdirs();
+                        }
 
-                    while ((len = in.read(buf)) > 0) {
-                        out.write(buf, 0, len);
+                        try {
+                            // declare input and output FileInputStreams with directories
+                            InputStream in = new FileInputStream(sourceLocationFile);
+                            OutputStream out = new FileOutputStream(destinationLocationFile);
+
+                            // Copy the bits from instream to outstream
+                            byte[] buf = new byte[1024];
+                            int len;
+
+                            while ((len = in.read(buf)) > 0) {
+                                out.write(buf, 0, len);
+                            }
+                            // close streams
+                            in.close();
+                            out.close();
+                        } catch (FileNotFoundException e) {
+                            e.printStackTrace();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+
+                        // checking if file has been created successfully
+                        exsistance = checkFileExistance(destinationPath, fileName);
+
+                        if(exsistance.equals("Success")){
+                            return "Copied";
+                        }
+                        else{
+                            return "CopyFailed";
+                        }
+
                     }
-                    // close streams
-                    in.close();
-                    out.close();
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
+                    else{
+                        return "AlreadyExists";
+                    }
+
+                } else {
+                    Toast.makeText(MainActivity.this, "Storage Read/Write Permission Error", Toast.LENGTH_SHORT).show();
+                    return "Failed";
                 }
 
+            }
 
+
+            private String checkFileExistance(String destinationPath, String fileName){
                 // check if file has been created in destination
-                String checkPath = destinationPath+fileName;
+                String checkPath = destinationPath + fileName;
                 File checkFile = new File(checkPath);
 
-                if(checkFile.exists()){
+                if (checkFile.exists()) {
                     MediaScannerConnection.scanFile(getApplicationContext(),
-                            new String[] { checkFile.toString() }, null,
+                            new String[]{checkFile.toString()}, null,
                             new MediaScannerConnection.OnScanCompletedListener() {
                                 public void onScanCompleted(String path, Uri uri) {
-                                    Log.i("ExternalStorage", "Scanned " + path + ":");
-                                    Log.i("ExternalStorage", "-> uri=" + uri);
+                                    //Log.i("ExternalStorage", "Scanned " + path + ":");
+                                    //Log.i("ExternalStorage", "-> uri=" + uri);
                                 }
                             });
                     return "Success";
 
-                }
-                else{
+                } else {
                     return "Failed";
                 }
-
             }
 
             private void createThumbnail(String fileName) throws FileNotFoundException {
@@ -282,15 +327,20 @@ public class MainActivity extends FlutterActivity {
                     //Log.d("Files", "Size: "+ files.length);
 
                     // looping through all the files
-                    for (int i = 0; i < files.length; i++) {
-                        if (files[i].getName().substring(32).equals(".mp4")) {
-                            createThumbnail(files[i].getName());
+                    if(files.length>0){
+                        for (int i = 0; i < files.length; i++) {
+                            if (files[i].getName().substring(32).equals(".mp4")) {
+                                createThumbnail(files[i].getName());
+                            }
                         }
-                    }
-                    // storing file list in array
-                    List<String> stauses = Arrays.asList(directory.list());
+                        // storing file list in array
+                        List<String> stauses = Arrays.asList(directory.list());
 
-                    return stauses;
+                        return stauses;
+                    }
+                    else {
+                        return null;
+                    }
                 } else {
                     Toast.makeText(MainActivity.this, "Storage Read/Write Permission Error", Toast.LENGTH_SHORT).show();
                     return null;
@@ -299,18 +349,6 @@ public class MainActivity extends FlutterActivity {
             }
 
         });
-    }
-
-    private void scanner(String path) {
-
-        MediaScannerConnection.scanFile(getApplicationContext(),
-                new String[] { path }, null,
-                new MediaScannerConnection.OnScanCompletedListener() {
-
-                    public void onScanCompleted(String path, Uri uri) {
-                        Log.i("TAG", "Finished scanning " + path);
-                    }
-                });
     }
 
     private List<String> getContacts() {
