@@ -13,6 +13,13 @@ class MyApp extends StatefulWidget{
 }
 
 class _MyAppState extends State<MyApp>{
+
+  void refreshApp(){
+    setState(() {
+
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
@@ -21,7 +28,7 @@ class _MyAppState extends State<MyApp>{
         primarySwatch: Colors.deepOrange,
       ),
       title: "Status Forever",
-      home: HomePage(),
+      home: HomePage(refreshApp),
     );
   }
 }

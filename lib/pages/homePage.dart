@@ -4,8 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../widgets/homePageW.dart';
+import '../widgets/typeAheadWidget.dart';
 
 class HomePage extends StatefulWidget {
+  Function refreshApp;
+  HomePage(this.refreshApp);
+
   @override
   State<StatefulWidget> createState() {
     // TODO: implement createState
@@ -18,7 +22,7 @@ class _HomePageState extends State<HomePage> {
   static const platform = const MethodChannel("com.a011.statusforever");
   bool _permissionStatus = true, _isLoading = false;
   var scaffoldKey = new GlobalKey<ScaffoldState>();
-  String appBarMessage = "Permission Request";
+  String appBarMessage = "Permission Request",contact;
   List _fileList = new List();
   List _contacts = new List();
 
@@ -93,6 +97,15 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  // sets contact from typeAheadWidget
+  void setContact(String value){
+    contact = value;
+  }
+
+  void copyFile(contact, fileIndex) async{
+    String result = await platform.invokeMethod("copyFile",{"contact":contact,"fileName":_fileList[fileIndex]});
+  }
+
   Widget buildUI() {
     return Container(
       padding: EdgeInsets.only(top:50),
@@ -158,7 +171,7 @@ class _HomePageState extends State<HomePage> {
     _contacts = await platform.invokeMethod("getContacts");
   }
 
-  void _getUserName() {
+  void _getUserName(index) {
     showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -167,14 +180,13 @@ class _HomePageState extends State<HomePage> {
                 borderRadius: BorderRadius.circular(5.0)),
             title: Text("Save As"),
             content: Container(
-              child: TextField(
-                decoration: InputDecoration(hintText: "Contact Name",helperText: "Please specify contact who posted this status",labelText: "Contact"),
-              ),
+              child: TypeAheadWidget(_contacts,widget.refreshApp,setContact,_fileList[index]),
             ),
             actions: <Widget>[
-              FlatButton(
+              RaisedButton(
                 child: Icon(Icons.save),
                 onPressed: () {
+                  copyFile(contact, index);
                   Navigator.pop(context);
                 },
                 textColor: Colors.white,
@@ -182,7 +194,7 @@ class _HomePageState extends State<HomePage> {
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(5.0)),
               ),
-              FlatButton(
+              RaisedButton(
                 child: Icon(Icons.cancel),
                 onPressed: () {
                   Navigator.pop(context);
@@ -209,7 +221,7 @@ class _HomePageState extends State<HomePage> {
             title: Text("Operations"),
             content: Text("What shall we do with this status?"),
             actions: <Widget>[
-              FlatButton(
+              RaisedButton(
                 child: Icon(Icons.remove_red_eye),
                 onPressed: () {
                   (fileType == 0)
@@ -221,18 +233,18 @@ class _HomePageState extends State<HomePage> {
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(5.0)),
               ),
-              FlatButton(
+              RaisedButton(
                 child: Icon(Icons.save),
                 onPressed: () {
                   Navigator.pop(context);
-                  _getUserName();
+                  _getUserName(index);
                 },
                 textColor: Colors.white,
                 color: Colors.teal,
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(5.0)),
               ),
-              FlatButton(
+              RaisedButton(
                 child: Icon(Icons.cancel),
                 onPressed: () {
                   Navigator.pop(context);
