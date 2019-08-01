@@ -211,7 +211,7 @@ class _HomePageState extends State<HomePage> {
                 borderRadius: BorderRadius.circular(5.0)),
             title: Text("Save As"),
             content: Container(
-              padding: EdgeInsets.only(bottom: 50.0),
+              padding: EdgeInsets.only(bottom: 200),
               child: TypeAheadWidget(
                   _contacts, widget.refreshApp, setContact, _fileList[index]),
             ),

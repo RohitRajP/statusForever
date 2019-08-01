@@ -48,13 +48,47 @@ class _TypeAheadWidgetState extends State<TypeAheadWidget> {
 
 
   Widget _contactListBuilder(int index){
-    return ListTile(
-      onTap: (){
-        myController.text = _customContacts[index];
-        widget.setContact(_customContacts[index]);
-        FocusScope.of(context).requestFocus(_dummyFocusNode);
-      },
-      title: Text(_customContacts[index]),
+    return Column(
+      children: <Widget>[
+        ListTile(
+          onTap: (){
+            myController.text = _customContacts[index];
+            widget.setContact(_customContacts[index]);
+            FocusScope.of(context).requestFocus(_dummyFocusNode);
+          },
+          title: Text(_customContacts[index]),
+        ),
+        Container(
+          child: (_customContacts.length>1)?ListTile(
+            onTap: (){
+              myController.text = _customContacts[index+1];
+              widget.setContact(_customContacts[index]);
+              FocusScope.of(context).requestFocus(_dummyFocusNode);
+            },
+            title: Text(_customContacts[index+1]),
+          ):null,
+        ),
+        Container(
+          child: (_customContacts.length>2)?ListTile(
+            onTap: (){
+              myController.text = _customContacts[index+2];
+              widget.setContact(_customContacts[index]);
+              FocusScope.of(context).requestFocus(_dummyFocusNode);
+            },
+            title: Text(_customContacts[index+2]),
+          ):null,
+        ),
+        Container(
+          child: (_customContacts.length>3)?ListTile(
+            onTap: (){
+              myController.text = _customContacts[index+3];
+              widget.setContact(_customContacts[index]);
+              FocusScope.of(context).requestFocus(_dummyFocusNode);
+            },
+            title: Text(_customContacts[index+3]),
+          ):null,
+        )
+      ],
     );
   }
 
