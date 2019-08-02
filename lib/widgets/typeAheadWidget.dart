@@ -62,7 +62,7 @@ class _TypeAheadWidgetState extends State<TypeAheadWidget> {
           child: (_customContacts.length>1)?ListTile(
             onTap: (){
               myController.text = _customContacts[index+1];
-              widget.setContact(_customContacts[index]);
+              widget.setContact(_customContacts[index+1]);
               FocusScope.of(context).requestFocus(_dummyFocusNode);
             },
             title: Text(_customContacts[index+1]),
@@ -72,7 +72,7 @@ class _TypeAheadWidgetState extends State<TypeAheadWidget> {
           child: (_customContacts.length>2)?ListTile(
             onTap: (){
               myController.text = _customContacts[index+2];
-              widget.setContact(_customContacts[index]);
+              widget.setContact(_customContacts[index+2]);
               FocusScope.of(context).requestFocus(_dummyFocusNode);
             },
             title: Text(_customContacts[index+2]),
@@ -82,7 +82,7 @@ class _TypeAheadWidgetState extends State<TypeAheadWidget> {
           child: (_customContacts.length>3)?ListTile(
             onTap: (){
               myController.text = _customContacts[index+3];
-              widget.setContact(_customContacts[index]);
+              widget.setContact(_customContacts[index+3]);
               FocusScope.of(context).requestFocus(_dummyFocusNode);
             },
             title: Text(_customContacts[index+3]),
