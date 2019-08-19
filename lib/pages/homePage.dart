@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 
 import '../widgets/homePageW.dart';
 import '../widgets/typeAheadWidget.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class HomePage extends StatefulWidget {
   Function refreshApp;
@@ -260,6 +261,7 @@ class _HomePageState extends State<HomePage> {
                   (fileType == 0)
                       ? viewImageUnSaved(index)
                       : viewVideoUnSaved(index);
+                  Navigator.pop(context);
                 },
                 textColor: Colors.indigo,
                 color: Color(0xFFEFEFEF),
@@ -267,12 +269,24 @@ class _HomePageState extends State<HomePage> {
                     borderRadius: BorderRadius.circular(5.0)),
               ),
               FlatButton(
-                child: Text("Save to device"),
+                child: Text("Save"),
                 onPressed: () {
                   Navigator.pop(context);
                   _getUserName(index);
                 },
                 textColor: Colors.teal,
+                color: Color(0xFFEFEFEF),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(5.0)),
+              ),
+              FlatButton.icon(
+                label: Text("Share"),
+                icon: Icon(FontAwesomeIcons.shareAlt),
+                onPressed: () {
+                  platform.invokeMethod("shareMedia", {"fileType":fileType,"fileName":_fileList[index]});
+                  Navigator.pop(context);
+                },
+                textColor: Colors.green,
                 color: Color(0xFFEFEFEF),
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(5.0)),
