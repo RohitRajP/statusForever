@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
+import java.net.URI;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -151,7 +152,39 @@ public class MainActivity extends FlutterActivity {
                     i.setData(Uri.parse(url));
                     startActivity(i);
                 }
+                else if(methodCall.method.equals("shareMedia")){
 
+                    // getting file parameters
+                    String fileName = methodCall.argument("fileName");
+                    String fileType = methodCall.argument("fileType").toString();
+
+                    // setting file path
+                    String uriString = Environment.getExternalStorageDirectory().toString() + "/WhatsApp/Media/.Statuses/" + fileName;
+
+                    // calling function to share media
+                    shareMedia(fileType, uriString);
+                }
+
+            }
+
+            private void shareMedia(String fileType, String uriString){
+
+                    File test = new File(uriString);
+                    Intent sendIntent = new Intent();
+                    sendIntent.setAction(Intent.ACTION_SEND);
+                    sendIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
+                    if(fileType.equals("0")){
+
+                        sendIntent.setType("image/jpeg");
+                    }
+                    else if(fileType.equals("1")){
+
+                        sendIntent.setType("video/mp4");
+                    }
+
+                    sendIntent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(test));
+                    startActivity(Intent.createChooser(sendIntent, "Share image using"));
             }
 
 
