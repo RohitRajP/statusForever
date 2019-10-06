@@ -361,36 +361,36 @@ public class MainActivity extends FlutterActivity {
                     // hash map to store values of files with their modified dates
                     HashMap<String, Date> hmap = new HashMap<String, Date>();
 
-                    // date format to reformat dates if necessary
-                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd h:m");
+                    // storing file list in array
+                    List<String> stauses = Arrays.asList(directory.list());
 
                     // looping through all the files
                     if (files.length > 0) {
                         for (int i = 0; i < files.length; i++) {
 
-                            // getting the last modified dates of file
-                            Date lastModDate = new Date(files[i].lastModified());
-//
-//                            // adding the date to variable
-//                            lastModDates.add(lastModDate);
+                            // loop to sort the files according to modified dates
+                            for (int j = i; j < files.length; j++) {
+                                // getting the last modified dates of files
+                                Date lastModDatei = new Date(files[i].lastModified());
+                                Date lastModDatej = new Date(files[j].lastModified());
 
-                            hmap.put(files[i].toString(),lastModDate);
+                                // checking which file is newer and exchanging if it is needed
+                                if((lastModDatei.before(lastModDatej))){
+//                                    Log.d("DEBUG", lastModDatei+" is after "+lastModDatej+"\n");
+//                                    Log.d("DEBUG", "So moving "+i+" to "+j);
+
+                                    // interchanging values
+                                    String temp = stauses.get(j);
+                                    stauses.set(j,stauses.get(i));
+                                    stauses.set(i,temp);
+                                }
+                            }
 
                             // creating thumbnails for files if it is a video
                             if (files[i].getName().substring(32).equals(".mp4")) {
                                 createThumbnail(files[i].getName());
                             }
                         }
-
-                        // loop to sort hashmap
-                        for(int i=0;i<files.length;i++){
-                            hmap.
-                        }
-
-
-
-                        // storing file list in array
-                        List<String> stauses = Arrays.asList(directory.list());
 
                         return stauses;
                     } else {
