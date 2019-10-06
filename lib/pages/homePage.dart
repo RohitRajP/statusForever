@@ -31,7 +31,6 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     // TODO: implement initState
     super.initState();
-
     // checks permission Status
     _checkPermission();
   }

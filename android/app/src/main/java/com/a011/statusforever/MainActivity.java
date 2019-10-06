@@ -18,6 +18,7 @@ import android.os.Environment;
 import android.os.StrictMode;
 import android.provider.ContactsContract;
 import android.provider.MediaStore;
+import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
@@ -33,8 +34,11 @@ import java.io.OutputStream;
 import java.lang.reflect.Method;
 import java.net.URI;
 import java.nio.channels.FileChannel;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 import io.flutter.app.FlutterActivity;
@@ -46,7 +50,6 @@ public class MainActivity extends FlutterActivity {
 
     // declaring unique channelID for app
     public static final String CHANNEL_ID = "com.a011.statusforever";
-
     private int storagePermissionCode = 1;
 
 
@@ -133,26 +136,22 @@ public class MainActivity extends FlutterActivity {
                     String contact = methodCall.argument("contact");
 
                     result.success(copyFile(fileName, contact));
-                }
-                else if(methodCall.method.equals("openGitHub")){
+                } else if (methodCall.method.equals("openGitHub")) {
                     String url = "https://github.com/RohitRajP";
                     Intent i = new Intent(Intent.ACTION_VIEW);
                     i.setData(Uri.parse(url));
                     startActivity(i);
-                }
-                else if(methodCall.method.equals("openLinkedIn")){
+                } else if (methodCall.method.equals("openLinkedIn")) {
                     String url = "https://linkedin.com/in/rohit-raj-p";
                     Intent i = new Intent(Intent.ACTION_VIEW);
                     i.setData(Uri.parse(url));
                     startActivity(i);
-                }
-                else if(methodCall.method.equals("openFacebook")){
+                } else if (methodCall.method.equals("openFacebook")) {
                     String url = "https://www.facebook.com/profile.php?id=100014423143431";
                     Intent i = new Intent(Intent.ACTION_VIEW);
                     i.setData(Uri.parse(url));
                     startActivity(i);
-                }
-                else if(methodCall.method.equals("shareMedia")){
+                } else if (methodCall.method.equals("shareMedia")) {
 
                     // getting file parameters
                     String fileName = methodCall.argument("fileName");
@@ -167,24 +166,23 @@ public class MainActivity extends FlutterActivity {
 
             }
 
-            private void shareMedia(String fileType, String uriString){
+            private void shareMedia(String fileType, String uriString) {
 
-                    File test = new File(uriString);
-                    Intent sendIntent = new Intent();
-                    sendIntent.setAction(Intent.ACTION_SEND);
-                    sendIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                File test = new File(uriString);
+                Intent sendIntent = new Intent();
+                sendIntent.setAction(Intent.ACTION_SEND);
+                sendIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
 
-                    if(fileType.equals("0")){
+                if (fileType.equals("0")) {
 
-                        sendIntent.setType("image/jpeg");
-                    }
-                    else if(fileType.equals("1")){
+                    sendIntent.setType("image/jpeg");
+                } else if (fileType.equals("1")) {
 
-                        sendIntent.setType("video/mp4");
-                    }
+                    sendIntent.setType("video/mp4");
+                }
 
-                    sendIntent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(test));
-                    startActivity(Intent.createChooser(sendIntent, "Share image using"));
+                sendIntent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(test));
+                startActivity(Intent.createChooser(sendIntent, "Share image using"));
             }
 
 
@@ -199,7 +197,7 @@ public class MainActivity extends FlutterActivity {
                     // check if file already exsists
                     String exsistance = checkFileExistance(destinationPath, fileName);
 
-                    if(exsistance.equals("Failed")){
+                    if (exsistance.equals("Failed")) {
                         // creating file instances for both source and destination paths
                         File sourceLocationFile = new File(sourcePath);
                         File destinationLocationDir = new File(destinationPath);
@@ -234,15 +232,13 @@ public class MainActivity extends FlutterActivity {
                         // checking if file has been created successfully
                         exsistance = checkFileExistance(destinationPath, fileName);
 
-                        if(exsistance.equals("Success")){
+                        if (exsistance.equals("Success")) {
                             return "Copied";
-                        }
-                        else{
+                        } else {
                             return "CopyFailed";
                         }
 
-                    }
-                    else{
+                    } else {
                         return "AlreadyExists";
                     }
 
@@ -254,7 +250,7 @@ public class MainActivity extends FlutterActivity {
             }
 
 
-            private String checkFileExistance(String destinationPath, String fileName){
+            private String checkFileExistance(String destinationPath, String fileName) {
                 // check if file has been created in destination
                 String checkPath = destinationPath + fileName;
                 File checkFile = new File(checkPath);
@@ -359,19 +355,45 @@ public class MainActivity extends FlutterActivity {
                     // logging number of files in directory
                     //Log.d("Files", "Size: "+ files.length);
 
+                    // list to hold the last modified dates of files
+                    List<Date> lastModDates = new ArrayList<>();
+
+                    // hash map to store values of files with their modified dates
+                    HashMap<String, Date> hmap = new HashMap<String, Date>();
+
+                    // date format to reformat dates if necessary
+                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd h:m");
+
                     // looping through all the files
-                    if(files.length>0){
+                    if (files.length > 0) {
                         for (int i = 0; i < files.length; i++) {
+
+                            // getting the last modified dates of file
+                            Date lastModDate = new Date(files[i].lastModified());
+//
+//                            // adding the date to variable
+//                            lastModDates.add(lastModDate);
+
+                            hmap.put(files[i].toString(),lastModDate);
+
+                            // creating thumbnails for files if it is a video
                             if (files[i].getName().substring(32).equals(".mp4")) {
                                 createThumbnail(files[i].getName());
                             }
                         }
+
+                        // loop to sort hashmap
+                        for(int i=0;i<files.length;i++){
+                            hmap.
+                        }
+
+
+
                         // storing file list in array
                         List<String> stauses = Arrays.asList(directory.list());
 
                         return stauses;
-                    }
-                    else {
+                    } else {
                         return null;
                     }
                 } else {
@@ -426,4 +448,5 @@ public class MainActivity extends FlutterActivity {
             }
         }
     }
+
 }
