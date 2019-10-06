@@ -48,7 +48,7 @@ class _HomePageState extends State<HomePage> {
             _isLoading = true;
             _permissionStatus = true;
           });
-          _fetchStatuses();
+          fetchStatuses();
         }
         return new Future.value("");
     }
@@ -68,7 +68,7 @@ class _HomePageState extends State<HomePage> {
     String result = await platform.invokeMethod("checkPermission");
 
     if (result == "Granted") {
-      _fetchStatuses();
+      fetchStatuses();
       // updates app to show content or request button
       setState(() {
         _fabShow = true;
@@ -86,7 +86,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   // fetches list of statuses in internal storage
-  void _fetchStatuses() async {
+  void fetchStatuses() async {
     // invokes native function to get list of viewed statuses
     List result = await platform.invokeMethod("fetchFileList");
 
@@ -135,6 +135,7 @@ class _HomePageState extends State<HomePage> {
 
   Widget buildUI() {
     return Container(
+
         padding: EdgeInsets.only(top: 0, left: 0.0, right: 0.0),
         child: GridView.count(
             crossAxisCount: 5,
@@ -305,19 +306,10 @@ class _HomePageState extends State<HomePage> {
     // TODO: implement build
     return SafeArea(
       child: Scaffold(
+        backgroundColor: Color(0xFFEFEFEF),
         key: scaffoldKey,
-        floatingActionButton: (_fabShow)?FloatingActionButton.extended(
-          onPressed: () {
-            _fetchStatuses();
-          },
-          icon: Icon(Icons.refresh),
-          label: Text("Refresh"),
-          backgroundColor: Colors.green,
-        ):null,
-        appBar: appBarW(appBarMessage, context),
+        appBar: appBarW(appBarMessage, context,fetchStatuses),
         body: Container(
-          padding: EdgeInsets.only(top: 5.0),
-          color: Color(0xFFEFEFEF),
           child: (_permissionStatus)
               ? (_isLoading)
                   ? loadingView("Fetching every status...", context)

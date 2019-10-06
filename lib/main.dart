@@ -33,6 +33,7 @@ class _MyAppState extends State<MyApp>{
     return MaterialApp(
       theme: ThemeData(
         primarySwatch: Colors.teal,
+        brightness: Brightness.light
       ),
       title: "Status Forever",
 

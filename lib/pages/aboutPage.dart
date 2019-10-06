@@ -60,7 +60,7 @@ class _AboutPageState extends State<AboutPage> {
                         style: TextStyle(color: Colors.grey, fontSize: 15.0)),
                   ),
                   Container(
-                    child: Text('1.0',
+                    child: Text('2.0',
                         style: TextStyle(color: Colors.black, fontSize: 20.0)),
                   ),
                   Container(
@@ -69,7 +69,7 @@ class _AboutPageState extends State<AboutPage> {
                         style: TextStyle(color: Colors.grey, fontSize: 15.0)),
                   ),
                   Container(
-                    child: Text('July 2019',
+                    child: Text('August 2019',
                         style: TextStyle(color: Colors.black, fontSize: 20.0)),
                   ),
                   Container(

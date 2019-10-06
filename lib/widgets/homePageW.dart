@@ -20,16 +20,39 @@ var message_textStyle =
 var permission_textStyle = TextStyle(
     fontSize: 18.0, fontWeight: FontWeight.bold, color: Colors.deepOrange);
 
-Widget appBarW(appBarMessage,context) {
+Widget appBarW(appBarMessage,context,fetchStatuses) {
   return AppBar(
+    backgroundColor: Color(0xFFEFEFEF),
     actions: <Widget>[
-      FlatButton(
-        child: Icon(FontAwesomeIcons.infoCircle),
-        onPressed: (){
-          Navigator.pushNamed(context, '/aboutPage');
-        },
-        color: Colors.transparent,
-      )
+        PopupMenuButton<String>(
+          padding: EdgeInsets.only(right: 25.0),
+          elevation: 30.0,
+          icon: Icon(FontAwesomeIcons.cogs,color: Colors.black,),
+          onSelected: (choice){
+            if(choice.compareTo("refresh")==0){
+              fetchStatuses();
+            }
+            else if(choice.compareTo("info")==0){
+              Navigator.pushNamed(context, '/aboutPage');
+            }
+          },
+          itemBuilder: (context)=>[
+            PopupMenuItem(
+              value: "refresh",
+              child: ListTile(
+                title: Text("Refresh"),
+                leading: Icon(FontAwesomeIcons.sync),
+              )
+            ),
+            PopupMenuItem(
+              value: "info",
+              child: ListTile(
+                title: Text("About"),
+                leading: Icon(FontAwesomeIcons.infoCircle),
+              )
+            )
+          ],
+        )
     ],
     title: Text(
       appBarMessage,
@@ -41,7 +64,7 @@ Widget appBarW(appBarMessage,context) {
     ),
     elevation: 0,
     centerTitle: true,
-    backgroundColor: Color(0xFFEFEFEF),
+
   );
 }
 
