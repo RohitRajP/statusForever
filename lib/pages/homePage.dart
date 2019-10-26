@@ -147,7 +147,9 @@ class _HomePageState extends State<HomePage> {
                   color: Colors.black,
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10.0)),
-                  child: (_fileList[index].toString().substring(32) == ".mp4")
+                  child: (_fileList[index].toString().length >32 &&
+                      _fileList[index]
+                      .toString().substring(32) == ".mp4")
                       ? videoView(index, _fileList, showOptions)
                       : imageView(index, _fileList, showOptions),
                 ),

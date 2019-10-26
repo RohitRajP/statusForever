@@ -324,6 +324,8 @@ public class MainActivity extends FlutterActivity {
 
                 if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
 
+//                    Log.d("No Status Loading","Got Permission");
+
                     // navigating to the status path
                     String path = Environment.getExternalStorageDirectory().toString() + "/WhatsApp/Media/.Statuses";
 
@@ -353,7 +355,7 @@ public class MainActivity extends FlutterActivity {
                     File[] files = directory.listFiles();
 
                     // logging number of files in directory
-                    //Log.d("Files", "Size: "+ files.length);
+//                    Log.d("Files", "Size: "+ files.length);
 
                     // list to hold the last modified dates of files
                     List<Date> lastModDates = new ArrayList<>();
@@ -385,13 +387,13 @@ public class MainActivity extends FlutterActivity {
                                     stauses.set(i,temp);
                                 }
                             }
-
+//                            Log.d("No Status Loading",files[i].getName());
                             // creating thumbnails for files if it is a video
-                            if (files[i].getName().substring(32).equals(".mp4")) {
+                            if (files[i].getName().length() > 32 && files[i].getName().substring(32).equals(".mp4")) {
                                 createThumbnail(files[i].getName());
                             }
                         }
-
+//                        Log.d("No Status Loading","Got Statuses");
                         return stauses;
                     } else {
                         return null;
