@@ -21,7 +21,10 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   // declaring variable to hold platform channel name
   static const platform = const MethodChannel("com.a011.statusforever");
-  bool _permissionStatus = true, _isLoading = false,_fabShow = false,_noContent = false;
+  bool _permissionStatus = true,
+      _isLoading = false,
+      _noContent = false,
+      isRefreshing = false;
   var scaffoldKey = new GlobalKey<ScaffoldState>();
   String appBarMessage = "Permission Request", contact;
   List _fileList = new List();
@@ -42,7 +45,6 @@ class _HomePageState extends State<HomePage> {
         // if permission is granted
         if (call.arguments == "true") {
           setState(() {
-            _fabShow = true;
             appBarMessage = "Status Forever";
             _isLoading = true;
             _permissionStatus = true;
@@ -70,7 +72,6 @@ class _HomePageState extends State<HomePage> {
       fetchStatuses();
       // updates app to show content or request button
       setState(() {
-        _fabShow = true;
         appBarMessage = "Status Forever";
       });
     }
@@ -81,7 +82,7 @@ class _HomePageState extends State<HomePage> {
 
   // invokes function to get permission
   void _getPermissions() async {
-    String result = await platform.invokeMethod("getPermission");
+    await platform.invokeMethod("getPermission");
   }
 
   // fetches list of statuses in internal storage
@@ -96,13 +97,13 @@ class _HomePageState extends State<HomePage> {
         // disable loading
         _isLoading = false;
       });
-    }
-    else{
+    } else {
       setState(() {
         _isLoading = false;
         _noContent = true;
       });
     }
+    setRefreshValue(2);
   }
 
   // sets contact from typeAheadWidget
@@ -115,26 +116,40 @@ class _HomePageState extends State<HomePage> {
         "copyFile", {"contact": contact, "fileName": _fileList[fileIndex]});
     if (result == "Copied") {
       _snakbarShow(1);
-    }
-    else if(result == "AlreadyExists"){
+    } else if (result == "AlreadyExists") {
       _snakbarShow(2);
-    }
-    else{
+    } else {
       _snakbarShow(3);
     }
   }
 
-  void _snakbarShow(int mode){
+  void _snakbarShow(int mode) {
     scaffoldKey.currentState.showSnackBar(SnackBar(
-      content: (mode == 1)?Text("Success! Status Saved to device"):(mode == 2)?Text("Status already exists in device\nYou can find it in your gallery"):Text("Error! File could not be saved.\n Please contact developer"),
-      backgroundColor: (mode == 1)?Colors.green:(mode == 2)?Colors.orange:Colors.red,
+      content: (mode == 1)
+          ? Text("Success! Status Saved to device")
+          : (mode == 2)
+              ? Text(
+                  "Status already exists in device\nYou can find it in your gallery")
+              : Text(
+                  "Error! File could not be saved.\n Please contact developer"),
+      backgroundColor:
+          (mode == 1) ? Colors.green : (mode == 2) ? Colors.orange : Colors.red,
       duration: Duration(seconds: 3),
     ));
   }
 
+  void setRefreshValue(int mode) {
+    setState(() {
+      if(mode == 1){
+        isRefreshing = true;
+      } else{
+        isRefreshing = false;
+      }
+    });
+  }
+
   Widget buildUI() {
     return Container(
-
         padding: EdgeInsets.only(top: 0, left: 0.0, right: 0.0),
         child: GridView.count(
             crossAxisCount: 5,
@@ -147,9 +162,8 @@ class _HomePageState extends State<HomePage> {
                   color: Colors.black,
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10.0)),
-                  child: (_fileList[index].toString().length >32 &&
-                      _fileList[index]
-                      .toString().substring(32) == ".mp4")
+                  child: (_fileList[index].toString().length > 32 &&
+                          _fileList[index].toString().substring(32) == ".mp4")
                       ? videoView(index, _fileList, showOptions)
                       : imageView(index, _fileList, showOptions),
                 ),
@@ -178,9 +192,15 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget showNoContent(){
+  Widget showNoContent() {
     return Center(
-      child: Text("No Content to show\nWhat happened to people?",style: TextStyle(fontSize: 18.0,),textAlign: TextAlign.center,),
+      child: Text(
+        "No Content to show\nWhat happened to people?",
+        style: TextStyle(
+          fontSize: 18.0,
+        ),
+        textAlign: TextAlign.center,
+      ),
     );
   }
 
@@ -285,7 +305,8 @@ class _HomePageState extends State<HomePage> {
                 label: Text("Share"),
                 icon: Icon(FontAwesomeIcons.shareAlt),
                 onPressed: () {
-                  platform.invokeMethod("shareMedia", {"fileType":fileType,"fileName":_fileList[index]});
+                  platform.invokeMethod("shareMedia",
+                      {"fileType": fileType, "fileName": _fileList[index]});
                   Navigator.pop(context);
                 },
                 textColor: Colors.green,
@@ -309,12 +330,18 @@ class _HomePageState extends State<HomePage> {
       child: Scaffold(
         backgroundColor: Color(0xFFEFEFEF),
         key: scaffoldKey,
-        appBar: appBarW(appBarMessage, context,fetchStatuses),
+        appBar: appBarW(appBarMessage, context, fetchStatuses,setRefreshValue),
         body: Container(
           child: (_permissionStatus)
               ? (_isLoading)
                   ? loadingView("Fetching every status...", context)
-                  : (_noContent)?showNoContent():buildUI()
+                  : (_noContent)
+                      ? showNoContent()
+                      : (isRefreshing == true)
+                          ? Center(
+                              child: CircularProgressIndicator(),
+                            )
+                          : buildUI()
               : _permissionAskingView(),
         ),
       ),
